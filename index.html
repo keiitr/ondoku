@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>音読パッケージ 学習ノート</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="音読ノート">
+<meta name="theme-color" content="#243B6B">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Yomogi&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4F6FA;
+  --card:#FFFFFF;
+  --ink:#1A2540;
+  --sub:#5A6580;
+  --indigo:#33518F;
+  --indigo-deep:#243B6B;
+  --marker:#FFE873;
+  --redpen:#D6452C;
+  --line:#DDE3EE;
+  --ok:#2E8B57;
+  --radius:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{font-size:16px;}
+body{
+  font-family:"Zen Kaku Gothic New",sans-serif;
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.7;
+  padding-bottom:90px;
+}
+.wrap{max-width:760px;margin:0 auto;padding:0 14px;}
+
+/* ---------- header ---------- */
+header{
+  background:var(--indigo-deep);
+  color:#fff;
+  padding:calc(14px + env(safe-area-inset-top)) 0 0;
+}
+header .wrap{padding-bottom:0;}
+.eyebrow{
+  font-family:"Yomogi",cursive;
+  font-size:.85rem;
+  color:#B9C6E8;
+  letter-spacing:.08em;
+}
+h1{
+  font-size:1.3rem;
+  font-weight:700;
+  letter-spacing:.02em;
+  margin:2px 0 14px;
+}
+.tabs{
+  display:flex;gap:8px;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{
+  flex:0 0 auto;
+  border:none;
+  background:rgba(255,255,255,.12);
+  color:#D8E0F2;
+  font-family:inherit;
+  font-size:.88rem;
+  font-weight:500;
+  padding:10px 14px 12px;
+  border-radius:10px 10px 0 0;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.tab.active{background:var(--paper);color:var(--indigo-deep);font-weight:700;}
+
+/* ---------- control bar ---------- */
+.controls{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:12px;
+  margin:14px 0;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.ctrl-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+.ctrl-label{font-size:.75rem;color:var(--sub);font-weight:700;min-width:4.5em;}
+.chip{
+  border:1.5px solid var(--line);
+  background:#fff;
+  color:var(--sub);
+  font-family:inherit;
+  font-size:.82rem;
+  padding:6px 12px;
+  border-radius:999px;
+  cursor:pointer;
+  transition:all .15s;
+}
+.chip.active{border-color:var(--indigo);background:var(--indigo);color:#fff;font-weight:700;}
+select{
+  font-family:inherit;font-size:.85rem;
+  padding:6px 10px;border-radius:8px;
+  border:1.5px solid var(--line);background:#fff;color:var(--ink);
+}
+.btn{
+  border:none;border-radius:10px;
+  font-family:inherit;font-size:.9rem;font-weight:700;
+  padding:10px 16px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.btn-primary{background:var(--indigo);color:#fff;}
+.btn-primary:active{background:var(--indigo-deep);}
+.btn-stop{background:#EEE1DD;color:var(--redpen);}
+.btn-ghost{background:#EDF0F7;color:var(--sub);}
+.btn-danger{background:#FBEAE6;color:var(--redpen);font-size:.8rem;padding:6px 12px;}
+.hint{font-size:.72rem;color:var(--sub);}
+
+/* ---------- sentence cards ---------- */
+.sec-title{
+  font-size:.8rem;font-weight:700;color:var(--indigo);
+  letter-spacing:.15em;margin:22px 0 10px;
+  display:flex;align-items:center;gap:8px;
+}
+.sec-title::after{content:"";flex:1;height:1px;background:var(--line);}
+.sentence{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  margin-bottom:10px;
+  overflow:hidden;
+}
+.s-head{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:14px 14px 12px;
+  cursor:pointer;
+}
+.s-num{
+  font-family:"Lora",serif;
+  font-size:.8rem;font-weight:600;
+  color:#fff;background:var(--indigo);
+  min-width:24px;height:24px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  margin-top:3px;flex-shrink:0;
+}
+.s-en{
+  font-family:"Lora",serif;
+  font-size:1.05rem;line-height:1.65;
+  flex:1;
+}
+.sentence.playing{border-color:var(--indigo);box-shadow:0 0 0 2px rgba(51,81,143,.18);}
+.sentence.playing .s-en{
+  background:linear-gradient(transparent 62%, var(--marker) 62%, var(--marker) 96%, transparent 96%);
+}
+.s-play{
+  border:1.5px solid var(--line);background:#fff;
+  width:34px;height:34px;border-radius:50%;
+  cursor:pointer;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--indigo);font-size:.8rem;
+}
+.s-play:active{background:var(--indigo);color:#fff;}
+.s-body{
+  display:none;
+  border-top:1px dashed var(--line);
+  padding:12px 14px 14px;
+}
+.sentence.open .s-body{display:block;}
+.ja{
+  font-size:.95rem;color:var(--ink);
+  background:#F4F6FA;border-radius:10px;
+  padding:10px 12px;margin-bottom:12px;
+}
+.ja-label,.gr-label,.wd-label{
+  display:inline-block;
+  font-family:"Yomogi",cursive;
+  font-size:.75rem;font-weight:700;
+  color:var(--redpen);
+  margin-bottom:4px;letter-spacing:.1em;
+}
+.grammar-item{
+  border-left:3px solid var(--redpen);
+  padding:4px 0 4px 12px;
+  margin-bottom:10px;
+}
+.grammar-item:last-child{margin-bottom:0;}
+.g-point{
+  font-family:"Lora","Zen Kaku Gothic New",serif;
+  font-weight:700;font-size:.92rem;color:var(--indigo-deep);
+  margin-bottom:2px;
+}
+.g-desc{font-size:.86rem;color:#3A4560;}
+.s-words{margin-top:10px;font-size:.82rem;color:var(--sub);}
+.s-words b{color:var(--ink);font-family:"Lora",serif;}
+
+/* blur modes */
+.blurred{
+  filter:blur(6px);
+  cursor:pointer;
+  user-select:none;
+  transition:filter .2s;
+}
+.revealed{filter:none;}
+
+/* ---------- counter ---------- */
+.counter{
+  background:var(--card);border:1px solid var(--line);
+  border-radius:var(--radius);padding:16px 14px;margin-bottom:10px;
+  text-align:center;
+}
+.counter .big{
+  font-family:"Lora",serif;font-size:2.2rem;font-weight:600;color:var(--indigo-deep);
+  line-height:1.2;
+}
+.counter .goal{font-size:.8rem;color:var(--sub);margin-bottom:10px;}
+.bar{height:8px;background:#E8ECF5;border-radius:99px;overflow:hidden;margin:10px 0 12px;}
+.bar>div{height:100%;background:linear-gradient(90deg,var(--indigo),#6C8BD9);border-radius:99px;transition:width .3s;width:0;}
+.count-btns{display:flex;gap:8px;justify-content:center;}
+.milestone{
+  font-family:"Yomogi",cursive;font-size:.85rem;color:var(--redpen);
+  margin-top:8px;min-height:1.4em;
+}
+
+/* ---------- vocab ---------- */
+.vocab-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:8px;
+}
+.vcard{
+  background:var(--card);border:1px solid var(--line);border-radius:10px;
+  padding:10px 12px;cursor:pointer;min-height:74px;
+}
+.v-en{font-family:"Lora",serif;font-weight:600;font-size:.95rem;}
+.v-pron{font-size:.72rem;color:var(--sub);}
+.v-ja{
+  font-size:.85rem;margin-top:4px;
+  color:var(--indigo-deep);font-weight:500;
+}
+.v-ja.hidden-mean{visibility:hidden;}
+.v-pos{
+  display:inline-block;font-size:.65rem;color:#fff;background:#8A97B5;
+  border-radius:4px;padding:0 5px;margin-right:4px;vertical-align:1px;
+}
+
+/* ---------- import / manage ---------- */
+.panel{
+  background:var(--card);border:1px solid var(--line);
+  border-radius:var(--radius);padding:14px;margin-bottom:10px;
+}
+.panel h3{font-size:.95rem;margin-bottom:8px;}
+.panel p{font-size:.82rem;color:var(--sub);margin-bottom:10px;}
+textarea{
+  width:100%;min-height:140px;
+  font-family:ui-monospace,Menlo,monospace;font-size:.8rem;
+  border:1.5px solid var(--line);border-radius:10px;
+  padding:10px;resize:vertical;background:#FBFCFE;color:var(--ink);
+}
+.panel .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.msg{font-size:.8rem;margin-top:8px;min-height:1.2em;}
+.msg.ok{color:var(--ok);}
+.msg.err{color:var(--redpen);}
+.ch-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 4px;border-bottom:1px dashed var(--line);
+  font-size:.9rem;
+}
+.ch-item:last-child{border-bottom:none;}
+.ch-item .meta{font-size:.72rem;color:var(--sub);}
+details.import-box>summary{
+  cursor:pointer;font-weight:700;font-size:.9rem;
+  list-style:none;display:flex;align-items:center;gap:6px;
+}
+details.import-box>summary::before{content:"▸";color:var(--indigo);transition:transform .15s;}
+details.import-box[open]>summary::before{transform:rotate(90deg);}
+
+/* ---------- footer note ---------- */
+.note{
+  font-size:.75rem;color:var(--sub);
+  padding:14px 4px 30px;
+}
+
+/* ---------- floating play bar ---------- */
+.playbar{
+  position:fixed;left:0;right:0;bottom:0;
+  background:rgba(255,255,255,.96);
+  border-top:1px solid var(--line);
+  backdrop-filter:blur(8px);
+  padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+  display:flex;gap:10px;justify-content:center;
+  z-index:50;
+}
+.playbar .btn{flex:1;max-width:280px;justify-content:center;}
+
+@media(min-width:700px){
+  h1{font-size:1.6rem;}
+  .s-en{font-size:1.15rem;}
+}
+@media (prefers-reduced-motion: reduce){
+  *{transition:none!important;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">みるみる英語力がアップする</div>
+    <h1>音読パッケージ 学習ノート</h1>
+    <div class="tabs" id="tabs"></div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="controls">
+    <div class="ctrl-row">
+      <span class="ctrl-label">表示モード</span>
+      <button class="chip mode-chip active" data-mode="all">すべて表示</button>
+      <button class="chip mode-chip" data-mode="hideJa">訳を隠す</button>
+      <button class="chip mode-chip" data-mode="hideEn">英文を隠す</button>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">再生速度</span>
+      <select id="rate">
+        <option value="0.7">ゆっくり (0.7×)</option>
+        <option value="0.85">やや遅め (0.85×)</option>
+        <option value="1" selected>ナチュラル (1.0×)</option>
+        <option value="1.15">やや速め (1.15×)</option>
+        <option value="1.3">速め (1.3×)</option>
+      </select>
+      <button class="chip" id="pauseChip">リピートポーズ OFF</button>
+    </div>
+    <div class="hint">💡 リピートポーズON:1文読み上げ後、同じ長さの無音が入ります。声に出して(or 頭の中で)リピートしましょう。</div>
+  </div>
+
+  <div class="sec-title">音読カウンター</div>
+  <div class="counter">
+    <div class="big"><span id="countNum">0</span> <span style="font-size:1rem;color:var(--sub)">回</span></div>
+    <div class="goal">目標:100回(このProgramの通し音読)</div>
+    <div class="bar"><div id="countBar"></div></div>
+    <div class="count-btns">
+      <button class="btn btn-primary" id="countPlus">音読した +1</button>
+      <button class="btn btn-ghost" id="countMinus">−1</button>
+    </div>
+    <div class="milestone" id="milestone"></div>
+  </div>
+
+  <div class="sec-title">本文(タップで訳・文法解説)</div>
+  <div id="sentences"></div>
+
+  <div class="sec-title">語句フラッシュカード(タップで意味)</div>
+  <div class="ctrl-row" style="margin-bottom:10px">
+    <button class="chip" id="vocabToggle">意味をすべて隠す</button>
+  </div>
+  <div class="vocab-grid" id="vocab"></div>
+
+  <div class="sec-title">章の追加・管理</div>
+
+  <div class="panel">
+    <details class="import-box">
+      <summary>新しい章を追加する(Claudeで作ったJSONを貼り付け)</summary>
+      <p style="margin-top:10px">
+        手順:① 下のボタンで指示文をコピー → ② Claudeのチャットに教材写真と一緒に貼り付けて送信 →
+        ③ 返ってきたJSONをここに貼り付けて「章を追加」
+      </p>
+      <div class="row">
+        <button class="btn btn-ghost" id="copyPrompt">📋 Claude用の指示文をコピー</button>
+      </div>
+      <textarea id="importArea" placeholder='ここにJSONを貼り付け(例:{"tab":"1-3 ...","sentences":[...]})'></textarea>
+      <div class="row">
+        <button class="btn btn-primary" id="importBtn">章を追加</button>
+      </div>
+      <div class="msg" id="importMsg"></div>
+    </details>
+  </div>
+
+  <div class="panel">
+    <h3>登録済みの章</h3>
+    <div id="chapterList"></div>
+    <div class="row">
+      <button class="btn btn-ghost" id="exportBtn">📤 追加した章をバックアップ(コピー)</button>
+    </div>
+    <div class="msg" id="manageMsg"></div>
+  </div>
+
+  <div class="note">
+    ※ 音声はお使いの端末の読み上げ機能(TTS)を利用します。iPhoneの場合、マナーモード解除またはイヤホン推奨。<br>
+    ※ 追加した章と音読カウントはこの端末(ブラウザ)に自動保存されます。<br>
+    ※ 一度開けばオフライン(地下鉄など)でも利用できます。
+  </div>
+</div>
+
+<div class="playbar">
+  <button class="btn btn-primary" id="playAll">▶ 連続再生(通勤モード)</button>
+  <button class="btn btn-stop" id="stopAll" style="display:none">■ 停止</button>
+</div>
+
+<script>
+/* =========================================================
+   保存(localStorage / 失敗時はメモリのみ)
+========================================================= */
+const store = {
+  get(key, fallback){
+    try{
+      const v = localStorage.getItem(key);
+      return v ? JSON.parse(v) : fallback;
+    }catch(e){ return fallback; }
+  },
+  set(key, val){
+    try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
+  }
+};
+
+/* =========================================================
+   Claude用プロンプトテンプレート
+========================================================= */
+const PROMPT_TEMPLATE = `以下の教材ページの写真から、英語学習アプリ用のJSONを作ってください。
+
+【ルール】
+- 英文を1センテンスごとに区切る
+- 各センテンスに日本語訳(写真内の訳を優先して使用)を付ける
+- 各センテンスに文法・構文の解説を付ける(重要構文・熟語・関係代名詞・時制・準否定語など、高校〜大学受験レベルで具体的に。1文につき2〜4項目)
+- 写真の語句リスト(発音記号・品詞・意味)もJSONに含める。手書きメモの語句もあれば含める
+- 出力はJSONのみをコードブロックで。前後の説明文は一切不要
+
+【JSON形式(この形式を厳守)】
+{
+  "tab": "章番号 タイトル(例: 1-3 オーディオリンガル方式)",
+  "sentences": [
+    {
+      "en": "英文1文",
+      "ja": "日本語訳",
+      "grammar": [
+        {"p": "構文・文法項目名「意味」", "d": "解説文"}
+      ],
+      "words": [["単語や熟語", "意味"]]
+    }
+  ],
+  "vocab": [
+    ["単語", "発音記号(不明なら空文字)", "品詞(名/動/形/副/熟)", "意味"]
+  ]
+}`;
+
+/* =========================================================
+   標準データ:Program 1-1 / 1-2
+========================================================= */
+const builtinPrograms = [
+{
+  id:"p1",
+  tab:"1-1 外国語の学習",
+  sentences:[
+    {
+      en:"There are so many languages in the world.",
+      ja:"世界には非常に多くの言語があります。",
+      grammar:[
+        {p:"There are 〜「〜がある」", d:"存在を表す構文。be動詞は後ろの名詞に一致するので、複数形 languages に合わせて are。単数なら There is。"},
+        {p:"so many「非常に多くの」", d:"so は many を強調する副詞。「とても多くの」という程度の強さを表す。"}
+      ],
+      words:[["so many","非常に多くの"]]
+    },
+    {
+      en:"Some experts say that the number of languages that exist is over six thousand.",
+      ja:"存在する言語の数は6,000を超えると言う専門家もいます。",
+      grammar:[
+        {p:"Some 〜 say that ...「…と言う〜もいる」", d:"Some+名詞が主語のとき、「〜な人もいる」と訳すと自然な日本語になる(全員ではなく一部、のニュアンス)。that節が say の目的語。"},
+        {p:"the number of 〜「〜の数」", d:"主語の核は the number(単数)なので動詞は is。「多くの〜」を意味する a number of 〜 と混同しないこと。"},
+        {p:"languages that exist(主格の関係代名詞)", d:"that は languages を先行詞とする主格の関係代名詞。「存在する言語」。exist が現在形なのは一般的事実だから。"}
+      ],
+      words:[["expert","専門家"],["exist","存在する"],["over","〜を超える(=more than)"]]
+    },
+    {
+      en:"Differences in languages can make it difficult to make friends, exchange information and trade with people who speak other languages.",
+      ja:"言語の違いは、他の言語を話す人々と友達になったり、情報を交換したり、交易したりすることを困難にします。",
+      grammar:[
+        {p:"make it difficult to do(形式目的語)", d:"第5文型 make O C の O に形式目的語 it を置き、本当の目的語(to以下)を後ろに回す形。「〜することを難しくする」。★超頻出の重要構文。"},
+        {p:"to make friends, (to) exchange 〜 and (to) trade 〜", d:"3つの動詞句 make / exchange / trade が A, B and C の形で並列。2つ目以降の to は省略されている。"},
+        {p:"people who speak 〜(主格の関係代名詞)", d:"who は people を先行詞とする主格の関係代名詞。「他の言語を話す人々」。"},
+        {p:"can「〜しうる」", d:"ここの can は能力ではなく可能性。「〜することがありうる」。"}
+      ],
+      words:[["exchange","交換する"],["trade","交易する"],["difference","違い"]]
+    },
+    {
+      en:"Ancient people thought of this problem even as a punishment.",
+      ja:"古代の人々はこの問題を罰とさえ考えました。",
+      grammar:[
+        {p:"think of A as B「AをBと見なす」", d:"熟語。regard A as B / see A as B も同じ意味。ここでは A = this problem、B = a punishment。"},
+        {p:"even「〜でさえ」", d:"even が as a punishment の前に置かれ、「罰として『さえ』考えた」と驚きを強調している。"}
+      ],
+      words:[["ancient","大昔の・古代の"],["punishment","罰"]]
+    },
+    {
+      en:"In some myths people became so arrogant that God turned one original language into many different languages and caused great confusion as punishment.",
+      ja:"いくつかの神話では、人々がとても傲慢になったので、神は罰として、一つの最初の言語を多くの異なる言語に変えてしまい、大きな混乱を引き起こしました。",
+      grammar:[
+        {p:"so 〜 that ...「とても〜なので…」", d:"結果を表す重要構文。so arrogant that 〜 =「あまりに傲慢だったので〜」。★音読で語順のまま(傲慢になった→その結果…)理解できるようにするのがコツ。"},
+        {p:"turn A into B「AをBに変える」", d:"熟語。change A into B と同じ。A = one original language、B = many different languages。"},
+        {p:"turned 〜 and caused 〜(動詞の並列)", d:"主語 God に対して turned と caused の2つの動詞が and で並列。「変えて、そして引き起こした」。"},
+        {p:"as punishment「罰として」", d:"前置詞 as「〜として」。ここでは無冠詞(抽象的な「罰」)。"}
+      ],
+      words:[["myth","神話"],["arrogant","ごう慢な"],["confusion","混乱"],["original","最初の・元の"]]
+    },
+    {
+      en:"The story of the Tower of Babel is probably the most famous of this kind of myth.",
+      ja:"「バベルの塔」の物語はこの種類の神話で、おそらくもっとも有名です。",
+      grammar:[
+        {p:"the most famous(最上級)", d:"famous の最上級。後ろに one(= myth)が省略されているイメージ。「最も有名な(もの)」。"},
+        {p:"of this kind of myth「この種の神話の中で」", d:"最上級の範囲を示す of 〜。「〜の中で最も…」。in と of の使い分け:of+複数・グループ、in+場所・範囲。"},
+        {p:"probably「おそらく」", d:"確信度がかなり高い(80〜90%)推量の副詞。perhaps / maybe(50%程度)より強い。"}
+      ],
+      words:[["the Tower of Babel","バベルの塔"],["probably","おそらく"]]
+    },
+    {
+      en:"Even if it is difficult, it is necessary to communicate with people speaking foreign languages in business, politics, science and many other activities.",
+      ja:"たとえそれが難しくても、ビジネスや政治、科学、そして他の多くの活動において、外国語を話す人々と意思の疎通をすることが必要です。",
+      grammar:[
+        {p:"Even if 〜「たとえ〜でも」", d:"譲歩を表す接続詞。if「もし〜なら」に even がついて「たとえ〜だとしても」。"},
+        {p:"it is necessary to do(形式主語)", d:"It is 形容詞 to do の形式主語構文。真の主語は to communicate 以下。「〜することが必要だ」。"},
+        {p:"people speaking foreign languages(現在分詞の後置修飾)", d:"speaking 〜 が people を後ろから修飾。= people who speak foreign languages。分詞1語なら前置、語句を伴うと後置になる。"}
+      ],
+      words:[["communicate with 〜","〜と意思疎通する"],["politics","政治"],["activity","活動"]]
+    },
+    {
+      en:"So people have been trying to find ways to learn foreign languages.",
+      ja:"それで、人々は外国語を学ぶ方法をみつけようとしてきました。",
+      grammar:[
+        {p:"have been trying(現在完了進行形)", d:"「(過去から今まで)ずっと〜し続けている」継続を強調する形。have + been + 〜ing。今もその努力が続いているニュアンス。"},
+        {p:"try to do「〜しようと努める」", d:"try doing「試しに〜してみる」との違いに注意。to不定詞は「これからすること」への努力。"},
+        {p:"ways to learn 〜(不定詞の形容詞用法)", d:"to learn 〜 が ways を後ろから修飾。「学ぶ(ための)方法」。"}
+      ],
+      words:[["so","それで・だから"],["way","方法"]]
+    }
+  ],
+  vocab:[
+    ["exist","igzíst","動","存在する"],
+    ["expert","ékspəːrt","名","専門家"],
+    ["trade","tréid","動","交易する"],
+    ["ancient","éinʃənt","形","大昔の"],
+    ["punishment","pʌ́niʃmənt","名","罰"],
+    ["myth","míθ","名","神話"],
+    ["arrogant","ǽrəgənt","形","ごう慢な"],
+    ["politics","pɑ́lətìks","名","政治"],
+    ["exchange","ikstʃéindʒ","動","交換する"],
+    ["confusion","kənfjúːʒən","名","混乱"]
+  ]
+},
+{
+  id:"p2",
+  tab:"1-2 文法訳読方式",
+  sentences:[
+    {
+      en:"The grammar translation method is a traditional way to study foreign languages.",
+      ja:"文法訳読方式は、外国語を学ぶための伝統的な方法です。",
+      grammar:[
+        {p:"way to do(不定詞の形容詞用法)", d:"to study 〜 が way を後ろから修飾。「学ぶ(ための)方法」。way / time / chance / ability などは to不定詞と相性が良い名詞。"},
+        {p:"grammar translation method(名詞の連結)", d:"名詞が名詞を修飾する複合名詞。grammar(文法)+ translation(訳読)+ method(方式)。英語は名詞を並べて専門用語を作れる。"}
+      ],
+      words:[["traditional","伝統的な"],["method","方法・方式"]]
+    },
+    {
+      en:"This method was commonly used in Europe in the 19th century to teach students how to read the literature of the Greeks and Romans.",
+      ja:"このメソッドは19世紀のヨーロッパで、生徒にギリシヤ人やローマ人の文学の読み方を教えるために一般的に使われていました。",
+      grammar:[
+        {p:"was commonly used(受動態)", d:"be + 過去分詞の受動態。「使われていた」。副詞 commonly は be動詞と過去分詞の間に置くのが基本位置。"},
+        {p:"to teach 〜(目的を表す不定詞の副詞用法)", d:"「教えるために」。文全体の目的を表す。in order to teach と言い換え可能。"},
+        {p:"teach A B(第4文型)", d:"teach + 人 + 物 =「人に物を教える」。A = students、B = how to read 〜。"},
+        {p:"how to do「〜の仕方」", d:"疑問詞 + to不定詞。「どう読むか=読み方」。what to do / where to go なども同じパターン。"}
+      ],
+      words:[["commonly","一般的に"],["literature","文学"],["century","世紀"]]
+    },
+    {
+      en:"In this method students memorize grammatical rules and the words of the language that they study.",
+      ja:"このメソッドでは、生徒達は学んでいる言語の文法規則と単語を暗記します。",
+      grammar:[
+        {p:"memorize A and B(目的語の並列)", d:"memorize の目的語は grammatical rules と the words of the language の2つ。"},
+        {p:"the language that they study(目的格の関係代名詞)", d:"that は the language を先行詞とする目的格の関係代名詞(study の目的語)。目的格なので省略も可能:the language they study。"}
+      ],
+      words:[["memorize","記憶する・暗記する"],["grammatical","文法の"],["rule","規則"]]
+    },
+    {
+      en:"Then students try to analyze the texts that they read and translate them into their mother tongue.",
+      ja:"それから、生徒達は、読んだ文を分析し、母語に翻訳します。",
+      grammar:[
+        {p:"try to analyze 〜 and (to) translate 〜(不定詞の並列)", d:"try の後ろに to analyze と (to) translate の2つの不定詞が並列。2つ目の to は省略。"},
+        {p:"the texts that they read(目的格の関係代名詞)", d:"that は texts を先行詞とする目的格の関係代名詞。「彼らが読む文章」。"},
+        {p:"translate A into B「AをBに翻訳する」", d:"熟語。them = the texts。into は「変化の結果」を表す前置詞(turn A into B と同じ発想)。"},
+        {p:"mother tongue「母語」", d:"= native language。tongue は「舌」→「言語」の意味もある。"}
+      ],
+      words:[["analyze","分析する"],["text","原文・文章"],["mother tongue","母語"]]
+    },
+    {
+      en:"Until recently it was the most common method to teach foreign languages in school in many countries.",
+      ja:"最近まで、これは、多くの国において、学校で外国語を教えるための最も一般的なメソッドでした。",
+      grammar:[
+        {p:"Until recently「最近まで」", d:"until は「〜まで(ずっと)」継続の終点を表す。by「〜までに(期限)」との違いに注意。"},
+        {p:"the most common(最上級)", d:"common の最上級。「最も一般的な」。"},
+        {p:"method to teach 〜(不定詞の形容詞用法)", d:"to teach 〜 が method を修飾。「教えるための方法」。"}
+      ],
+      words:[["recently","最近"],["common","一般的な"]]
+    },
+    {
+      en:"And it still is in some countries.",
+      ja:"そして、いくつかの国では、いまだにそうです。",
+      grammar:[
+        {p:"it still is(省略)", d:"is の後ろに the most common method が省略されている。前文の繰り返しを避ける省略。still「いまだに」が is の前に来て、文末の is が強く読まれる。"},
+        {p:"still の位置", d:"通常 still は be動詞の後ろだが、省略で be動詞が文末に残る場合は still + be の語順になる(be を強調)。"}
+      ],
+      words:[["still","いまだに・今でも"]]
+    },
+    {
+      en:"But since it puts little importance on sound and speaking practice, the grammar translation method hardly improves the abilities to speak foreign languages and understand them by listening.",
+      ja:"しかし、音や話す練習にほとんど重要性を置かないので、文法訳読方式は、外国語を話したり、聴いて理解する能力をほとんど向上させません。",
+      grammar:[
+        {p:"since「〜なので」(理由)", d:"ここの since は「〜以来」ではなく理由の接続詞。because より弱く、聞き手も知っている理由を述べるときに使う。★書き込みメモにあった but since =「しかし〜なので」。"},
+        {p:"put importance on 〜「〜に重要性を置く」", d:"熟語。place / put + importance / emphasis + on 〜 の形で「〜を重視する」。"},
+        {p:"little「ほとんど〜ない」(準否定)", d:"little は a little(少しある)と違い、否定的な意味「ほとんどない」。可算名詞には few / a few を使う。"},
+        {p:"hardly「ほとんど〜ない」(準否定)", d:"hardly / rarely / seldom は not を使わずに否定の意味を出す準否定語。hardly improves =「ほとんど向上させない」。hard(懸命に)とは全く別の意味なので注意。"},
+        {p:"abilities to speak 〜 and understand 〜", d:"to speak と (to) understand が並列で abilities を修飾する不定詞の形容詞用法。them = foreign languages。"},
+        {p:"by listening「聴くことによって」", d:"by + 動名詞「〜することによって」手段を表す。"}
+      ],
+      words:[["hardly","ほとんど〜ない"],["improve","改善する・向上させる"],["ability","能力"],["practice","練習"]]
+    }
+  ],
+  vocab:[
+    ["grammar","grǽmər","名","文法"],
+    ["translation","trænsléiʃən","名","翻訳"],
+    ["traditional","trədíʃənl","形","伝統的な"],
+    ["commonly","kɑ́mənli","副","一般的に"],
+    ["literature","lítərətʃər","名","文学"],
+    ["memorize","méməràiz","動","記憶する"],
+    ["analyze","ǽnəlàiz","動","分析する"],
+    ["text","tékst","名","原文"],
+    ["improve","imprúːv","動","改善する"],
+    ["hardly","hɑ́ːrdli","副","ほとんど〜ない"],
+    ["mother tongue","","名","母語"],
+    ["put importance on 〜","","熟","〜に重要性を置く"]
+  ]
+}
+];
+
+/* =========================================================
+   章データ:標準+ユーザー追加分
+========================================================= */
+let userChapters = store.get("ondoku_chapters", []);
+function allPrograms(){ return builtinPrograms.concat(userChapters); }
+
+/* =========================================================
+   状態
+========================================================= */
+let state = {
+  program: 0,
+  mode: "all",
+  pauseMode: false,
+  playing: false,
+  counts: store.get("ondoku_counts", {})
+};
+let playToken = 0;
+let vocabHidden = false;
+
+function saveCounts(){ store.set("ondoku_counts", state.counts); }
+function saveChapters(){ store.set("ondoku_chapters", userChapters); }
+
+/* =========================================================
+   描画
+========================================================= */
+const $ = s => document.querySelector(s);
+
+function currentProgram(){
+  const list = allPrograms();
+  if(state.program >= list.length) state.program = 0;
+  return list[state.program];
+}
+
+function renderTabs(){
+  const tabs = $("#tabs");
+  tabs.innerHTML = "";
+  allPrograms().forEach((p,i)=>{
+    const b = document.createElement("button");
+    b.className = "tab" + (i===state.program ? " active":"");
+    b.textContent = p.tab;
+    b.onclick = ()=>{ stopAll(); state.program=i; renderAll(); window.scrollTo({top:0}); };
+    tabs.appendChild(b);
+  });
+}
+
+function blurClass(type){
+  if(state.mode==="hideJa" && type==="ja") return " blurred";
+  if(state.mode==="hideEn" && type==="en") return " blurred";
+  return "";
+}
+
+function renderSentences(){
+  const wrap = $("#sentences");
+  wrap.innerHTML = "";
+  const prog = currentProgram();
+  prog.sentences.forEach((s,i)=>{
+    const card = document.createElement("div");
+    card.className = "sentence";
+    card.dataset.index = i;
+
+    const head = document.createElement("div");
+    head.className = "s-head";
+    head.innerHTML = `<div class="s-num">${i+1}</div>`;
+
+    const en = document.createElement("div");
+    en.className = "s-en" + blurClass("en");
+    en.textContent = s.en;
+    if(state.mode==="hideEn"){
+      en.onclick = (e)=>{ e.stopPropagation(); en.classList.toggle("revealed"); };
+    }
+    head.appendChild(en);
+
+    const play = document.createElement("button");
+    play.className = "s-play";
+    play.setAttribute("aria-label","この文を再生");
+    play.textContent = "▶";
+    play.onclick = (e)=>{ e.stopPropagation(); playOne(i); };
+    head.appendChild(play);
+
+    head.onclick = ()=> card.classList.toggle("open");
+
+    const body = document.createElement("div");
+    body.className = "s-body";
+
+    const ja = document.createElement("div");
+    ja.innerHTML = `<span class="ja-label">日本語訳</span>`;
+    const jaText = document.createElement("div");
+    jaText.className = "ja" + blurClass("ja");
+    jaText.textContent = s.ja || "";
+    if(state.mode==="hideJa"){
+      jaText.onclick = (e)=>{ e.stopPropagation(); jaText.classList.toggle("revealed"); };
+    }
+    ja.appendChild(jaText);
+    body.appendChild(ja);
+
+    if(Array.isArray(s.grammar) && s.grammar.length){
+      const gr = document.createElement("div");
+      gr.innerHTML = `<span class="gr-label">文法・構文ポイント</span>`;
+      s.grammar.forEach(g=>{
+        const item = document.createElement("div");
+        item.className = "grammar-item";
+        const p = document.createElement("div"); p.className="g-point"; p.textContent = g.p || "";
+        const d = document.createElement("div"); d.className="g-desc"; d.textContent = g.d || "";
+        item.appendChild(p); item.appendChild(d);
+        gr.appendChild(item);
+      });
+      body.appendChild(gr);
+    }
+
+    if(Array.isArray(s.words) && s.words.length){
+      const wd = document.createElement("div");
+      wd.className = "s-words";
+      const label = document.createElement("span"); label.className="wd-label"; label.textContent="語句";
+      wd.appendChild(label);
+      wd.appendChild(document.createTextNode(" "));
+      s.words.forEach((w,idx)=>{
+        const b = document.createElement("b"); b.textContent = w[0];
+        wd.appendChild(b);
+        wd.appendChild(document.createTextNode(":" + (w[1]||"") + (idx < s.words.length-1 ? " / " : "")));
+      });
+      body.appendChild(wd);
+    }
+
+    card.appendChild(head);
+    card.appendChild(body);
+    wrap.appendChild(card);
+  });
+}
+
+function renderVocab(){
+  const grid = $("#vocab");
+  grid.innerHTML = "";
+  const vocab = currentProgram().vocab || [];
+  vocab.forEach(v=>{
+    const c = document.createElement("div");
+    c.className = "vcard";
+    const enD = document.createElement("div"); enD.className="v-en"; enD.textContent = v[0];
+    c.appendChild(enD);
+    if(v[1]){
+      const pr = document.createElement("div"); pr.className="v-pron"; pr.textContent = "["+v[1]+"]";
+      c.appendChild(pr);
+    }
+    const jaD = document.createElement("div");
+    jaD.className = "v-ja" + (vocabHidden?" hidden-mean":"");
+    const pos = document.createElement("span"); pos.className="v-pos"; pos.textContent = v[2]||"";
+    jaD.appendChild(pos);
+    jaD.appendChild(document.createTextNode(v[3]||""));
+    c.appendChild(jaD);
+    c.onclick = ()=> jaD.classList.toggle("hidden-mean");
+    grid.appendChild(c);
+  });
+}
+
+function renderCounter(){
+  const id = currentProgram().id;
+  const n = state.counts[id] || 0;
+  $("#countNum").textContent = n;
+  $("#countBar").style.width = Math.min(100, n) + "%";
+  const m = $("#milestone");
+  if(n>=100) m.textContent = "🎉 100回達成!パッケージ完成です!";
+  else if(n>=50) m.textContent = "折り返し!後半も同じテンポで。";
+  else if(n>=30) m.textContent = "30回超え。文が口に馴染んできた頃。";
+  else if(n>=10) m.textContent = "いい調子。まずは意味を意識しながら。";
+  else m.textContent = "";
+}
+
+function renderChapterList(){
+  const box = $("#chapterList");
+  box.innerHTML = "";
+  allPrograms().forEach((p)=>{
+    const isUser = userChapters.some(u=>u.id===p.id);
+    const row = document.createElement("div");
+    row.className = "ch-item";
+    const left = document.createElement("div");
+    left.innerHTML = `${p.tab} <div class="meta">${p.sentences.length}文 / ${(p.vocab||[]).length}語句 ${isUser?"":"(標準)"}</div>`;
+    row.appendChild(left);
+    if(isUser){
+      const del = document.createElement("button");
+      del.className = "btn btn-danger";
+      del.textContent = "削除";
+      del.onclick = ()=>{
+        if(!confirm(`「${p.tab}」を削除しますか?`)) return;
+        userChapters = userChapters.filter(u=>u.id!==p.id);
+        saveChapters();
+        if(state.program >= allPrograms().length) state.program = 0;
+        renderAll();
+      };
+      row.appendChild(del);
+    }
+    box.appendChild(row);
+  });
+}
+
+function renderAll(){
+  renderTabs();
+  renderSentences();
+  renderVocab();
+  renderCounter();
+  renderChapterList();
+}
+
+/* =========================================================
+   章のインポート
+========================================================= */
+function extractJSON(text){
+  // コードブロックや前後の文章が混ざっていても { ... } を抽出
+  const start = text.indexOf("{");
+  const end = text.lastIndexOf("}");
+  if(start === -1 || end === -1 || end <= start) throw new Error("JSONが見つかりません");
+  return JSON.parse(text.slice(start, end+1));
+}
+
+function importChapter(){
+  const msg = $("#importMsg");
+  msg.className = "msg";
+  try{
+    const raw = $("#importArea").value.trim();
+    if(!raw){ throw new Error("JSONを貼り付けてください"); }
+    const data = extractJSON(raw);
+    if(!data.tab || typeof data.tab !== "string") throw new Error("「tab」(章タイトル)がありません");
+    if(!Array.isArray(data.sentences) || !data.sentences.length) throw new Error("「sentences」がありません");
+    data.sentences.forEach((s,i)=>{
+      if(!s.en) throw new Error(`sentences[${i}] に en(英文)がありません`);
+      if(!s.ja) s.ja = "";
+      if(!Array.isArray(s.grammar)) s.grammar = [];
+      if(!Array.isArray(s.words)) s.words = [];
+    });
+    if(!Array.isArray(data.vocab)) data.vocab = [];
+    data.id = "u" + Date.now();
+    userChapters.push(data);
+    saveChapters();
+    $("#importArea").value = "";
+    state.program = allPrograms().length - 1; // 追加した章を開く
+    renderAll();
+    msg.className = "msg ok";
+    msg.textContent = `✅「${data.tab}」を追加しました(${data.sentences.length}文)`;
+    window.scrollTo({top:0, behavior:"smooth"});
+  }catch(e){
+    msg.className = "msg err";
+    msg.textContent = "⚠️ 追加できませんでした:" + e.message;
+  }
+}
+
+function copyText(text, btn, doneLabel){
+  const done = ()=>{
+    const orig = btn.textContent;
+    btn.textContent = doneLabel;
+    setTimeout(()=>{ btn.textContent = orig; }, 1800);
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text, done));
+  }else{
+    fallbackCopy(text, done);
+  }
+}
+function fallbackCopy(text, done){
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.position = "fixed"; ta.style.opacity = "0";
+  document.body.appendChild(ta);
+  ta.select();
+  try{ document.execCommand("copy"); }catch(e){}
+  document.body.removeChild(ta);
+  done();
+}
+
+/* =========================================================
+   音声(Web Speech API)
+========================================================= */
+let voices = [];
+function loadVoices(){
+  if(typeof speechSynthesis === "undefined") return;
+  voices = speechSynthesis.getVoices().filter(v=>v.lang && v.lang.startsWith("en"));
+}
+loadVoices();
+if(typeof speechSynthesis !== "undefined"){
+  speechSynthesis.onvoiceschanged = loadVoices;
+}
+
+function pickVoice(){
+  if(!voices.length) loadVoices();
+  return voices.find(v=>/en[-_]US/i.test(v.lang)) || voices[0] || null;
+}
+
+function speak(text, onend){
+  if(typeof speechSynthesis === "undefined"){ if(onend) onend(); return; }
+  const u = new SpeechSynthesisUtterance(text);
+  const v = pickVoice();
+  if(v) u.voice = v;
+  u.lang = "en-US";
+  u.rate = parseFloat($("#rate").value);
+  u.onend = onend;
+  u.onerror = onend;
+  speechSynthesis.speak(u);
+}
+
+function highlight(i){
+  document.querySelectorAll(".sentence").forEach(el=>{
+    el.classList.toggle("playing", parseInt(el.dataset.index)===i);
+  });
+  if(i>=0){
+    const el = document.querySelector(`.sentence[data-index="${i}"]`);
+    if(el) el.scrollIntoView({behavior:"smooth", block:"center"});
+  }
+}
+
+function playOne(i){
+  stopAll();
+  const s = currentProgram().sentences[i];
+  highlight(i);
+  speak(s.en, ()=> highlight(-1));
+}
+
+function playAllSeq(){
+  stopAll();
+  state.playing = true;
+  const token = ++playToken;
+  $("#playAll").style.display = "none";
+  $("#stopAll").style.display = "inline-flex";
+  const list = currentProgram().sentences;
+
+  const step = (i)=>{
+    if(token!==playToken || i>=list.length){ finishPlay(token); return; }
+    highlight(i);
+    const start = Date.now();
+    speak(list[i].en, ()=>{
+      if(token!==playToken) return;
+      const elapsed = Date.now() - start;
+      const wait = state.pauseMode ? Math.max(800, elapsed) : 350;
+      setTimeout(()=>{ if(token===playToken) step(i+1); }, wait);
+    });
+  };
+  step(0);
+}
+
+function finishPlay(token){
+  if(token!==playToken) return;
+  state.playing = false;
+  highlight(-1);
+  $("#playAll").style.display = "inline-flex";
+  $("#stopAll").style.display = "none";
+}
+
+function stopAll(){
+  playToken++;
+  if(typeof speechSynthesis!=="undefined") speechSynthesis.cancel();
+  state.playing = false;
+  highlight(-1);
+  $("#playAll").style.display = "inline-flex";
+  $("#stopAll").style.display = "none";
+}
+
+/* =========================================================
+   イベント
+========================================================= */
+document.querySelectorAll(".mode-chip").forEach(ch=>{
+  ch.onclick = ()=>{
+    document.querySelectorAll(".mode-chip").forEach(c=>c.classList.remove("active"));
+    ch.classList.add("active");
+    state.mode = ch.dataset.mode;
+    renderSentences();
+  };
+});
+
+$("#pauseChip").onclick = function(){
+  state.pauseMode = !state.pauseMode;
+  this.classList.toggle("active", state.pauseMode);
+  this.textContent = "リピートポーズ " + (state.pauseMode ? "ON" : "OFF");
+};
+
+$("#playAll").onclick = playAllSeq;
+$("#stopAll").onclick = stopAll;
+
+$("#countPlus").onclick = ()=>{
+  const id = currentProgram().id;
+  state.counts[id] = (state.counts[id]||0) + 1;
+  saveCounts();
+  renderCounter();
+};
+$("#countMinus").onclick = ()=>{
+  const id = currentProgram().id;
+  if((state.counts[id]||0) > 0) state.counts[id]--;
+  saveCounts();
+  renderCounter();
+};
+
+$("#vocabToggle").onclick = function(){
+  vocabHidden = !vocabHidden;
+  this.classList.toggle("active", vocabHidden);
+  this.textContent = vocabHidden ? "意味をすべて表示" : "意味をすべて隠す";
+  renderVocab();
+};
+
+$("#copyPrompt").onclick = function(){
+  copyText(PROMPT_TEMPLATE, this, "✅ コピーしました!Claudeに写真と一緒に貼り付けてください");
+};
+
+$("#importBtn").onclick = importChapter;
+
+$("#exportBtn").onclick = function(){
+  if(!userChapters.length){
+    const m = $("#manageMsg");
+    m.className = "msg err";
+    m.textContent = "追加した章がまだありません(標準の2章は本体に含まれています)";
+    return;
+  }
+  copyText(JSON.stringify(userChapters, null, 1), this, "✅ コピーしました(メモアプリ等に保存を)");
+};
+
+renderAll();
+
+/* =========================================================
+   Service Worker(オフライン対応)
+========================================================= */
+if("serviceWorker" in navigator){
+  window.addEventListener("load", ()=>{
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
